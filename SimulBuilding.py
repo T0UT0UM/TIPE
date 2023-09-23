@@ -14,8 +14,8 @@ tool.pack(side = 'left')
 graph = tk.Frame(window, width = 600, height = 600, bg = 'white')
 graph.pack(side = 'right')
 
-can = tk.Canvas(graph,width = 600, height = 600, bg = 'white')
-can.pack()
+canvas = tk.Canvas(graph,width = 600, height = 600, bg = 'white')
+canvas.pack()
 
 
 # Create a circle in Tkinter
@@ -23,18 +23,27 @@ def _create_circle(self, x, y, r, **kwargs):
     return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
 tk.Canvas.create_circle = _create_circle
 
+
+# Normaliser
+normalizer = 600 / 20
+
 # Simulation Class
 class Simulation:
-    def __init__(self):
+    def __init__(self, dt):
         # Initialize simulation variables
         self.agents = []  # List of agents
         self.walls = []   # List of wall positions [(x1, y1, x2, y2), ...]
         self.exit = []   # List of exit positions [(x, y), ...]
+
+        self.motion = Motion(dt)
         
     def update_position(self):
-        Motion.euler(self, self.agents, self.walls)
+        self.motion.euler(self.agents, self.walls)
 
+simul = Simulation(0.1)
 
+simul.agents = [Agent(np.array([10, 10]), np.array([0, 0]), 1.5, 0.5, 80, 0.5) , Agent(np.array([12, 12]), np.array([0, 0]), 1.5, 0.5, 80, 0.5)]
+simul.walls = [Wall(np.array([3, 5]), np.array([7, 5]))]
 
 
 # Placeholder function to draw walls
@@ -52,16 +61,33 @@ def draw_exits(exit_positions):
     # Add code here to draw exits on the canvas based on exit_positions
     pass
 
-# Placeholder function to update the simulation
-def update_simulation():
-    # Add code here to calculate the next positions of agents using the Euler function
-    # Call draw_walls, draw_agents, and draw_exits to update the display
-    # Use tkinter's `after` method to schedule the next update
-    pass
+# Create a function to update the canvas based on simulation data
+def update_canvas(simul):
+    canvas.delete("all")  # Clear the canvas
+
+    # Draw walls
+    for wall in simul.walls:
+        x1 = wall.ext1[0] * normalizer
+        y1 = wall.ext1[1] * normalizer
+        x2 = wall.ext2[0] * normalizer
+        y2 = wall.ext2[1] * normalizer
+        canvas.create_line(x1, y1, x2, y2, fill="blue", width=2)
+
+    # Draw exits
+    for exit_pos in simul.exit:
+        x, y = exit_pos * normalizer
+        canvas.create_rectangle(x - 5, y - 5, x + 5, y + 5, fill="green")
+
+    # Draw agents
+    for agent in simul.agents:
+        x, y = agent.position * normalizer
+        canvas.create_circle(x, y, agent.radius * normalizer,fill="red")
+
 
 # Start the simulation loop
 def start_simulation():
-    update_simulation()
+    simul.update_position()
+    update_canvas(simul)
     window.after(100, start_simulation)  # Schedule the next update after 100 milliseconds
 
 # Add a button to start the simulation
