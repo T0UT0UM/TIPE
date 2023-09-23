@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from Model import *
+from Navigation import *
 
 # Create a Tkinter window
 window = tk.Tk()
@@ -8,14 +9,8 @@ window.title("Building Simulation")
 
 
 # Define the tool section and the canvas to draw on
-tool = tk.Frame(window, width = 200, height = 600)
-tool.pack(side = 'left')
-
-graph = tk.Frame(window, width = 600, height = 600, bg = 'white')
-graph.pack(side = 'right')
-
-canvas = tk.Canvas(graph,width = 600, height = 600, bg = 'white')
-canvas.pack()
+canvas = tk.Canvas(window,width = 600, height = 600, bg = 'white')
+canvas.pack(side = 'right')
 
 
 # Create a circle in Tkinter
@@ -36,11 +31,16 @@ class Simulation:
         self.exit = []   # List of exit positions [(x, y), ...]
 
         self.motion = Motion(dt)
-        
+
     def update_position(self):
         self.motion.euler(self.agents, self.walls)
 
+
+
+
+
 simul = Simulation(0.1)
+navig = Navigation(window, canvas)
 
 simul.agents = [Agent(np.array([10, 10]), np.array([0, 0]), 1.5, 0.5, 80, 0.5) , Agent(np.array([12, 12]), np.array([0, 0]), 1.5, 0.5, 80, 0.5)]
 simul.walls = [Wall(np.array([3, 5]), np.array([7, 5]))]
@@ -53,12 +53,12 @@ def draw_walls():
 
 # Placeholder function to draw agents
 def draw_agents(agent_positions):
-    # Add code here to draw agents on the canvas based on agent_positions
+    # Add code here to draw agents on the canvas
     pass
 
 # Placeholder function to draw exits
 def draw_exits(exit_positions):
-    # Add code here to draw exits on the canvas based on exit_positions
+    # Add code here to draw exits on the canvas
     pass
 
 # Create a function to update the canvas based on simulation data
@@ -83,20 +83,22 @@ def update_canvas(simul):
         x, y = agent.position * normalizer
         canvas.create_circle(x, y, agent.radius * normalizer,fill="red")
 
+update_canvas(simul)
 
 # Start the simulation loop
 def start_simulation():
+    navig.menu()
+    """
     simul.update_position()
     update_canvas(simul)
     window.after(100, start_simulation)  # Schedule the next update after 100 milliseconds
+    """
 
 # Add a button to start the simulation
-start_button = tk.Button(window, text="Start Simulation", command=start_simulation)
-start_button.pack()
+start_button = tk.Button(window, text="Start !", command=start_simulation)
+start_button.pack(fill='x', ipady=10, pady=3)
 
-
-# Call draw_walls, draw_agents, and draw_exits to initialize the display
-# You can provide initial data as needed
 
 # Start the Tkinter main loop
+window.geometry("800x600")
 window.mainloop()
