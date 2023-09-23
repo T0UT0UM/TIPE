@@ -11,7 +11,7 @@ class Agent:
         self.mass = mass
         self.tau = tau
         self.speed = self.f_DesiredSpeed()
-    
+
     def f_DesiredDirection(self):
         return (self.exit - self.position) / LA.norm(self.exit - self.position)
 
@@ -94,14 +94,14 @@ class Motion:
         a = np.zeros((len(agents), 2))
         F_Agents = self.f_Agents(agents)
         F_Walls = self.f_Walls(agents, walls)
-        
+
         for i in range(len(agents)):
             v0e0 = agents[i].f_DesiredSpeed()
             a[i, :] = ((v0e0 - agents[i].speed)/agents[i].tau) + (F_Agents[i, :]/agents[i].mass) + ((F_Walls[i, :])/agents[i].mass)
-        
+
         return a
-    
-    
+
+
     def euler(self, agents, walls):
         a = self.acceleration(agents, walls)
         for i in range(len(agents)):
