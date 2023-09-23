@@ -8,7 +8,7 @@ class Drawings:
 
         self.start_point = None
         self.previous_point = None
-        self.drawing_in_progress = False
+        self.preview_line = None
         self.min_distance = 5  # Minimum distance to consider drawing as closed
     
     def draw_room(self, event):
@@ -16,26 +16,42 @@ class Drawings:
             # Set the starting point
             self.start_point = (event.x, event.y)
             self.previous_point = self.start_point
-        else:
-            current_point = (event.x, event.y)
+        else :
+            current_point = self.room_CurrentPoint(event)
 
-            # Calculate the absolute differences in x and y
-            dx = abs(current_point[0] - self.previous_point[0])
-            dy = abs(current_point[1] - self.previous_point[1])
-            
-            # Check if the drawing is closer to being horizontal or vertical
-            if dx > dy:
-                current_point = (current_point[0], self.previous_point[1])  # Force horizontal line
-            else:
-                current_point = (self.previous_point[0], current_point[1])  # Force vertical line
-            
             # Draw the preview line
             self.simul.walls.append(Wall(np.array(self.previous_point)/self.simul.normalizer,
                                          np.array(current_point)/self.simul.normalizer))
             self.simul.update_canvas()
-            
+            self.preview_line = None
+
             # Update the previous point
             self.previous_point = current_point
+
+    def draw_room_move(self, event):
+        if self.start_point is not None:
+            current_point = self.room_CurrentPoint(event)
+
+            if self.preview_line:
+                self.canvas.delete(self.preview_line)
+
+            self.preview_line = self.canvas.create_line(self.previous_point[0], self.previous_point[1], current_point[0], current_point[1], dash=(4, 2))
+
+    def room_CurrentPoint(self, event):
+        current_point = (event.x, event.y)
+
+        # Calculate the absolute differences in x and y
+        dx = abs(current_point[0] - self.previous_point[0])
+        dy = abs(current_point[1] - self.previous_point[1])
+        
+        # Check if the drawing is closer to being horizontal or vertical
+        if dx > dy:
+            current_point = (current_point[0], self.previous_point[1])  # Force horizontal line
+        else:
+            current_point = (self.previous_point[0], current_point[1])  # Force vertical line
+        
+        return current_point
+
 
     def distance(self, point1, point2):
         # Calculate the distance between two points

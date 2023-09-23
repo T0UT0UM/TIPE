@@ -35,6 +35,10 @@ class Navigation:
         self.drawing.start_point = None
 
     def configure_room(self):
+        def room_binds():
+            self.canvas.bind("<Button-1>", self.drawing.draw_room)
+            self.canvas.bind("<Motion>", self.drawing.draw_room_move)
+        
         # Dropdown menu for room types
         tk.Label(self.window, text="Room Type", anchor='w').pack(fill='x', padx=10, pady=5)
         room_type_var = tk.StringVar()
@@ -49,7 +53,7 @@ class Navigation:
             self.canvas.current_tool = tool_name  # Set the current tool in the canvas
 
         # Wall button
-        wall_button = tk.Button(self.window, text="Wall", command=lambda:self.canvas.bind("<Button-1>", self.drawing.draw_room))
+        wall_button = tk.Button(self.window, text="Wall", command=room_binds)
         wall_button.pack(padx=10, anchor='w')
 
         # Exit button
