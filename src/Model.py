@@ -33,13 +33,11 @@ class Wall:
 
 # Motion class
 class Motion:
-    def __init__(self, dt):
+    def __init__(self):
         self.A = 2*10**3                              # constante (N) : int
         self.B = 0.08                                 # constante (m) : int
         self.k = 1.2*10**5                            # parametre (kg/s^2) : int
         self.kap = 2.4*10**5                          # parametre (kg/(m*s^2))
-
-        self.dt = dt
 
     def g(self, x):
         if x < 0:
@@ -102,8 +100,8 @@ class Motion:
         return a
 
 
-    def euler(self, agents, walls):
+    def euler(self, agents, walls, dt):
         a = self.acceleration(agents, walls)
         for i in range(len(agents)):
-            agents[i].speed =  agents[i].speed + self.dt * a[i]
-            agents[i].position = agents[i].position + self.dt * agents[i].speed
+            agents[i].speed =  agents[i].speed + dt * a[i]
+            agents[i].position = agents[i].position + dt * agents[i].speed
