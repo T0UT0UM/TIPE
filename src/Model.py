@@ -24,6 +24,7 @@ class Wall:
         self.ext1 = ext1
         self.ext2 = ext2
 
+    # Return the closest point of the wall from a given point
     def wallDistance(self, point):
         temp = np.dot(point - self.ext1, self.ext2 - self.ext1) / (LA.norm(self.ext2 - self.ext1))**2
         temp = min( max(0, temp), 1 )
@@ -34,16 +35,17 @@ class Wall:
 # Motion class
 class Motion:
     def __init__(self):
-        self.A = 2*10**3                              # constante (N) : int
-        self.B = 0.08                                 # constante (m) : int
-        self.k = 1.2*10**5                            # parametre (kg/s^2) : int
-        self.kap = 2.4*10**5                          # parametre (kg/(m*s^2))
+        self.A = 2*10**3
+        self.B = 0.08
+        self.k = 1.2*10**5
+        self.kap = 2.4*10**5
 
     def g(self, x):
         if x < 0:
             return 0
         return x
 
+    # Force between two agents
     def f_AgentsIJ(self, agentI, agentJ):
         d = LA.norm(agentI.position - agentJ.position)
         n = (agentI.position - agentJ.position)/d
@@ -56,6 +58,7 @@ class Motion:
 
         return a*n + b*t
 
+    # Forces between all agents
     def f_Agents(self, agents):
         F_total = np.zeros((len(agents), 2))
         for i in range(len(agents)):
@@ -65,7 +68,7 @@ class Motion:
                 F_total[j, :] -= F
         return F_total
 
-
+    # Force between an agent and a wall
     def f_AgentIWallJ(self, agentI, wallJ):
         point = wallJ.wallDistance(agentI.position)
         d = LA.norm(agentI.position - point)
@@ -79,6 +82,7 @@ class Motion:
 
         return a*n + b*t
 
+    # Force all agents and all walls
     def f_Walls(self, agents, walls):
         F_total = np.zeros((len(agents), 2))
         for i in range(len(agents)):
@@ -87,7 +91,7 @@ class Motion:
                 F_total[i, :] += F
         return F_total
 
-
+    # Acceleration of each agents
     def acceleration(self, agents, walls):
         a = np.zeros((len(agents), 2))
         F_Agents = self.f_Agents(agents)
@@ -99,7 +103,7 @@ class Motion:
 
         return a
 
-
+    # Update of speed and position
     def euler(self, agents, walls, dt):
         a = self.acceleration(agents, walls)
         for i in range(len(agents)):

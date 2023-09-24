@@ -28,7 +28,7 @@ class Drawings:
         else :
             current_point = self.room_CurrentPoint(event)
 
-            # Add the wall in simulation data
+            # Add wall in simulation data
             self.simul.walls.append(Wall(np.array(self.previous_point)/self.simul.normalizer,
                                          np.array(current_point)/self.simul.normalizer))
             self.simul.update_canvas()
@@ -72,7 +72,8 @@ class Drawings:
                     current_point = (current_point[0], wall.ext1[1]*self.simul.normalizer)
         return current_point
 
-    
+
+    # Place an agent in the simulation at the specified location
     def place_agent(self, event):
        self.simul.agents.append(Agent(np.array([event.x, event.y])/self.simul.normalizer,
                                      self.simul.exit,
@@ -85,6 +86,7 @@ class Drawings:
     def random_place(self):
         pass
 
+    # Place an exit in the simulation at the specified location
     def place_exit(self, event):
         self.simul.exit = np.array([event.x/self.simul.normalizer, event.y/self.simul.normalizer])
         self.simul.update_canvas()

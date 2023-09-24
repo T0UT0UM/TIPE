@@ -37,6 +37,7 @@ class Simulation:
         self.navig = Navigation(self, self.window, self.canvas)
         self.motion = Motion()
 
+    # Update the exit on each agents
     def update_exit(self):
         for agent in self.agents:
             agent.exit = self.exit
@@ -63,7 +64,8 @@ class Simulation:
         for agent in self.agents:
             x, y = agent.position * self.normalizer
             self.canvas.create_circle(x, y, agent.radius * self.normalizer,fill="red")
-    
+
+    # Run the simulation
     def run_simulation(self):
         self.motion.euler(self.agents, self.walls, self.dt)
         self.update_canvas()
@@ -71,12 +73,6 @@ class Simulation:
 
 
 simul = Simulation(0.1, window, canvas)
-
-simul.agents = [Agent(np.array([10, 10]), simul.exit, 1.5, 0.5, 80, 0.5) , Agent(np.array([12, 12]), np.array([0, 0]), 1.5, 0.5, 80, 0.5)]
-simul.walls = [Wall(np.array([3, 5]), np.array([7, 5]))]
-
-
-simul.update_canvas()
 
 # Start the simulation loop
 def start():
