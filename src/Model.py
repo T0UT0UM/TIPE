@@ -18,17 +18,17 @@ class Agent:
     def f_DesiredSpeed(self):
         return self.f_DesiredDirection() * self.v0
 
-    def wallDistance(self, wall):
-        temp = np.dot(self.position - wall.ext1, wall.ext2 - wall.ext1) / (LA.norm(wall.ext2 - wall.ext1))**2
-        temp = min( max( 0, temp ), 1 )
-        proche = wall.ext1 + (wall.ext2 - wall.ext1)*temp
-        return proche
-
 # Wall Class
 class Wall:
     def __init__(self, ext1, ext2):
         self.ext1 = ext1
         self.ext2 = ext2
+
+    def wallDistance(self, point):
+        temp = np.dot(point - self.ext1, self.ext2 - self.ext1) / (LA.norm(self.ext2 - self.ext1))**2
+        temp = min( max(0, temp), 1 )
+        proche = self.ext1 + (self.ext2 - self.ext1)*temp
+        return proche
 
 
 # Motion class
@@ -67,7 +67,7 @@ class Motion:
 
 
     def f_AgentIWallJ(self, agentI, wallJ):
-        point = agentI.wallDistance(wallJ)
+        point = wallJ.wallDistance(agentI.position)
         d = LA.norm(agentI.position - point)
         n = (agentI.position - point) / d
         t = np.array([-n[1], n[0]])

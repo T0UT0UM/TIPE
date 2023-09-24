@@ -19,10 +19,6 @@ class Navigation:
     def show_menu(self, menu_func):
         # Clear the tool frame and show the specified menu
         self.clear_tool_frame()
-
-        # Back button
-        tk.Button(self.window, text="Back", command=self.menu, width=30, anchor='w', bg='#f0f0f0', activebackground='#bdbdbd').pack(fill='x', ipady=10, pady=3)
-
         menu_func()
 
     def start_simulation(self):
@@ -31,6 +27,8 @@ class Navigation:
     def reset_canvas(self):
         self.simul.agents = []
         self.simul.walls = []
+        self.simul.exit = np.array([1, 1])
+        self.simul.update_exit()
         self.simul.update_canvas()
         self.drawing.start_point = None
 
@@ -38,6 +36,17 @@ class Navigation:
         def room_binds():
             self.canvas.bind("<Button-1>", self.drawing.draw_room)
             self.canvas.bind("<Motion>", self.drawing.draw_room_move)
+            self.canvas.bind("<Enter>", self.drawing.on_canvas_enter)
+            self.canvas.bind("<Leave>", self.drawing.on_canvas_leave)
+
+        def configure_room_back():
+            self.drawing.start_point = None
+            self.drawing.previous_point = None
+            self.drawing.preview_line = None
+            self.menu()
+
+        # Back button
+        tk.Button(self.window, text="Back", command=configure_room_back, width=30, anchor='w', bg='#f0f0f0', activebackground='#bdbdbd').pack(fill='x', ipady=10, pady=3)
         
         # Dropdown menu for room types
         tk.Label(self.window, text="Room Type", anchor='w').pack(fill='x', padx=10, pady=5)
@@ -66,10 +75,15 @@ class Navigation:
 
 
     def configure_agents(self):
+        self.canvas.bind("<Button-1>", self.drawing.place_agent)
+
+        # Back button
+        tk.Button(self.window, text="Back", command=self.menu, width=30, anchor='w', bg='#f0f0f0', activebackground='#bdbdbd').pack(fill='x', ipady=10, pady=3)
+
         # Random Placement
         tk.Button(self.window,
                   text="Place Randomly",
-                  command=lambda:self.canvas.bind("<Button-1>", self.drawing.random_place),
+                  command=self.drawing.random_place,
                   anchor='w',
                   bg='#f0f0f0',
                   activebackground='#bdbdbd').pack(fill='x', ipady=10, pady=3)
@@ -92,10 +106,12 @@ class Navigation:
         self.window.destroy()
 
     def menu(self):
-        self.clear_tool_frame()
+        self.clear_tool_frame()      
         self.canvas.unbind("<Enter>")
+        self.canvas.unbind("<Leave>")
         self.canvas.unbind("<Motion>")
         self.canvas.unbind("<Button-1>")
+
 
         # Start simulation button
         tk.Button(self.window,

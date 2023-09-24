@@ -9,7 +9,16 @@ class Drawings:
         self.start_point = None
         self.previous_point = None
         self.preview_line = None
-        self.min_distance = 5  # Minimum distance to consider drawing as closed
+
+    def on_canvas_enter(self, event):
+        # Cursor enters the canvas, show the preview line if it exists
+        if self.preview_line:
+            self.canvas.itemconfig(self.preview_line, state="normal")
+
+    def on_canvas_leave(self, event):
+        # Cursor leaves the canvas, hide the preview line if it exists
+        if self.preview_line:
+            self.canvas.itemconfig(self.preview_line, state="hidden")
     
     def draw_room(self, event):
         if self.start_point is None:
@@ -19,7 +28,7 @@ class Drawings:
         else :
             current_point = self.room_CurrentPoint(event)
 
-            # Draw the preview line
+            # Add the wall in simulation data
             self.simul.walls.append(Wall(np.array(self.previous_point)/self.simul.normalizer,
                                          np.array(current_point)/self.simul.normalizer))
             self.simul.update_canvas()
@@ -27,6 +36,12 @@ class Drawings:
 
             # Update the previous point
             self.previous_point = current_point
+
+            if current_point == self.start_point:
+                self.start_point = None
+                self.previous_point = None
+                self.preview_line = None
+                
 
     def draw_room_move(self, event):
         if self.start_point is not None:
@@ -47,29 +62,30 @@ class Drawings:
         # Check if the drawing is closer to being horizontal or vertical
         if dx > dy:
             current_point = (current_point[0], self.previous_point[1])  # Force horizontal line
+            for wall in self.simul.walls:
+                if abs(current_point[0] - wall.ext1[0]*self.simul.normalizer) < 20:
+                    current_point = (wall.ext1[0]*self.simul.normalizer, current_point[1])
         else:
             current_point = (self.previous_point[0], current_point[1])  # Force vertical line
-        
+            for wall in self.simul.walls:
+                if abs(current_point[1] - (wall.ext1[1]*self.simul.normalizer)) < 20:
+                    current_point = (current_point[0], wall.ext1[1]*self.simul.normalizer)
         return current_point
 
-
-    def distance(self, point1, point2):
-        # Calculate the distance between two points
-        x1, y1 = point1
-        x2, y2 = point2
-        return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-
-
     
-    def random_place(self, event):
-        # Complete the code
+    def place_agent(self, event):
+       self.simul.agents.append(Agent(np.array([event.x, event.y])/self.simul.normalizer,
+                                     self.simul.exit,
+                                     np.random.normal(1.5, 0.02, 1)[0],
+                                     np.random.normal(0.4, 0.02, 1)[0],
+                                     np.random.normal(80, 10, 1)[0],
+                                     0.5))
+       self.simul.update_canvas()
+
+    def random_place(self):
         pass
 
     def place_exit(self, event):
-        # Complete the code
-        print(2)
-
-    
-    def place_exit(self, event):
-        # Implement the logic to place the exit here
-        pass
+        self.simul.exit = np.array([event.x/self.simul.normalizer, event.y/self.simul.normalizer])
+        self.simul.update_canvas()
+        self.simul.update_exit()

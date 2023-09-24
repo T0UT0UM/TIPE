@@ -28,7 +28,7 @@ class Simulation:
         # Initialize simulation variables
         self.agents = []  # List of agents
         self.walls = []   # List of wall positions [(x1, y1, x2, y2), ...]
-        self.exit = []   # List of exit positions [(x, y), ...]
+        self.exit = np.array([1, 1])   # List of exit positions [(x, y), ...]
 
         self.dt = dt
         self.window = window
@@ -36,6 +36,11 @@ class Simulation:
 
         self.navig = Navigation(self, self.window, self.canvas)
         self.motion = Motion()
+
+    def update_exit(self):
+        for agent in self.agents:
+            agent.exit = self.exit
+            agent.speed = agent.f_DesiredSpeed()
     
     # Create a function to update the canvas based on simulation data
     def update_canvas(self):
@@ -50,9 +55,9 @@ class Simulation:
             self.canvas.create_line(x1, y1, x2, y2, fill="blue", width=2)
 
         # Draw exits
-        for exit_pos in self.exit:
-            x, y = exit_pos * self.normalizer
-            self.canvas.create_rectangle(x - 5, y - 5, x + 5, y + 5, fill="green")
+        x, y = self.exit * self.normalizer
+        self.canvas.create_line(x - 5, y, x + 5, y, fill="green")
+        self.canvas.create_line(x, y - 5, x, y + 5, fill="green")
 
         # Draw agents
         for agent in self.agents:
@@ -67,7 +72,7 @@ class Simulation:
 
 simul = Simulation(0.1, window, canvas)
 
-simul.agents = [Agent(np.array([10, 10]), np.array([0, 0]), 1.5, 0.5, 80, 0.5) , Agent(np.array([12, 12]), np.array([0, 0]), 1.5, 0.5, 80, 0.5)]
+simul.agents = [Agent(np.array([10, 10]), simul.exit, 1.5, 0.5, 80, 0.5) , Agent(np.array([12, 12]), np.array([0, 0]), 1.5, 0.5, 80, 0.5)]
 simul.walls = [Wall(np.array([3, 5]), np.array([7, 5]))]
 
 
